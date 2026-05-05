@@ -1,116 +1,88 @@
 # SKILLS.md
 
-## Hybrid visual-to-web transfer skill
+## Hybrid visual-to-web transfer + automated visual QA
 
-Use this skill when the task is to convert an approved visual design, PDF page, slide, screenshot, or media-kit reference into a web landing page.
+Use this skill for tasks where landing pages are produced from visual references and must pass measurable visual validation.
 
-### Core principle
+## Scope and target
 
-Do not redesign the approved visual.
+Target output:
+- static landing page for GitHub Pages;
+- high fidelity to approved references;
+- automated visual QA artifacts proving quality.
 
-Do not create a new interpretation.
+## Required section structure
 
-Do not make a generic landing inspired by the reference.
+The landing must contain and preserve this core section sequence:
+- `#hero`
+- `#formats`
+- `#packages`
 
-The goal is to transfer the approved visual into a working web page with maximum visual fidelity.
+Additional sections are allowed only if they do not break the reference hierarchy and commercial intent.
 
-### Required approach
+## Reference file rule
 
-Use a hybrid implementation:
+Primary references are fixed files:
+- `visual-reference/reference-1.webp`
+- `visual-reference/reference-2.webp`
+- `visual-reference/reference-3.webp`
 
-- HTML/CSS for page structure, grids, spacing, typography, live text, tables, cards, CTA blocks, pricing blocks, and responsive layout.
-- Image assets for elements that are visual, branded, complex, or expensive to reproduce accurately in CSS.
+Use them as:
+- visual source for implementation;
+- baseline set for visual diff checks.
 
-Image assets are allowed and often required for:
+## Asset extraction rule
 
-- official logos;
-- brand marks;
-- mascot/illustration elements;
-- complex UI mockups;
-- device mockups;
-- screenshots;
-- detailed advertising placement visuals;
-- visual fragments whose exact look matters more than editability.
+Apply hybrid transfer:
+- reproduce structure/layout/content containers in HTML/CSS;
+- extract/use image assets for logos, brand marks, complex graphics, mockups, and intricate decorative blocks.
 
-### Forbidden approach
+When CSS reproduction materially hurts fidelity, prefer extracted assets.
 
-Do not force pure HTML/CSS if it damages visual quality.
+## Strict prohibition
 
-Do not recreate official logos or mascots with divs, CSS shapes, emoji, or approximate text.
+Never use `visual-reference/*` files directly as live landing content or section backgrounds.
 
-Do not replace complex mockups with primitive boxes, gradients, or placeholder divs.
+Specifically forbidden:
+- full-page reference image as single-page website;
+- sliced reference chunks used to fake full implementation;
+- “generic template + reference screenshot overlay” approach.
 
-Do not invent new mockups if approved mockups already exist.
+## Visual diff must be measurable
 
-Do not simply paste full-page reference images as the whole website unless the user explicitly asks for image-only embedding.
+Visual quality must be evaluated via measurable diff (not subjective preview only).
 
-Do not convert the design into three visible A4/PDF sheets stacked on the page if the requested output is a continuous landing.
+Minimum expectation:
+- deterministic screenshots of implemented page;
+- comparison against reference baseline;
+- numeric/explicit diff output in report artifacts.
 
-### Correct web translation
+## Iteration rule from report
 
-The web result should feel like one continuous landing page while preserving the approved visual system.
+If diff is poor, next iteration must be driven by `visual-report/prompt` and artifact findings.
 
-Keep:
+Do not run speculative redesign loops “by intuition”.
 
-- brand colors;
-- exact logo/assets;
-- typography feel;
-- grid logic;
-- card style;
-- shadows;
-- rounded corners;
-- pricing hierarchy;
-- mockup appearance;
-- visual rhythm;
-- content order.
+Priority of fixes:
+1. layout geometry and section proportions;
+2. typography scale/weight/line-height;
+3. spacing rhythm and alignment;
+4. asset accuracy;
+5. color/contrast/shadows.
 
-Avoid visible page-sheet framing unless it is explicitly part of the requested web design.
+## Readiness criteria
 
-### Asset extraction rule
+Work is ready only if:
+- `#hero`, `#formats`, `#packages` are present and consistent with references;
+- hybrid approach is used correctly (live HTML/CSS + proper assets);
+- no forbidden usage of `visual-reference/*` as page content/background;
+- visual diff artifacts exist and are reviewable;
+- follow-up edits (if needed) are based on visual-report guidance;
+- CI/GitHub Actions validation is part of final evidence.
 
-If a visual element cannot be reproduced close to the reference in HTML/CSS within reasonable effort, extract or use it as an image asset.
+## Current pipeline limitations (must be acknowledged)
 
-Prefer asset extraction for logos and complex mockups over inaccurate CSS imitation.
-
-The final result may combine live HTML text with image-based visual fragments.
-
-### Iteration rule
-
-For complex visual transfer tasks, do not implement all screens at once after a failed attempt.
-
-First implement the first screen/hero and produce a screenshot for review.
-
-After the first screen is accepted, continue with the remaining sections.
-
-### Visual QA rule
-
-The implementer must compare the resulting page against the visual references.
-
-Use Playwright or another browser screenshot method when available.
-
-Check:
-
-- spacing;
-- typography scale;
-- colors;
-- logo accuracy;
-- mockup accuracy;
-- card proportions;
-- section rhythm;
-- desktop layout;
-- mobile layout;
-- absence of horizontal scroll;
-- absence of generic-template feel.
-
-If screenshot tooling is unavailable, state this clearly and provide the best available visual verification method.
-
-### Acceptance criteria
-
-A result is acceptable only if:
-
-- it visually resembles the approved reference, not a new design;
-- official logos and complex visuals are not replaced with homemade approximations;
-- the page feels like a polished landing, not stacked PDF screenshots;
-- live HTML/CSS is used where useful, and image assets are used where accuracy requires them;
-- content, prices, and agreed figures are preserved;
-- the implementation works as a static site on GitHub Pages without a build step.
+- Local Codex Cloud execution may be unstable for Playwright/browser/npm.
+- Local instability does not waive visual QA requirements.
+- Final validation authority is CI (GitHub Actions) artifacts.
+- If local run cannot complete, implementation is still expected to be iterated through CI reports until acceptable diff quality is reached.
