@@ -1,354 +1,113 @@
 # AGENTS.md
 
-## Project
+## Project purpose (current)
 
-This repository is for preparing a compact commercial media kit for Go2.by advertising opportunities.
+This repository is a **playground + template** for an automated landing generation pipeline.
 
-The target advertiser is a direct advertising partner from the betting / sports betting category, approximately Betera.
+Primary process:
+- input: visual reference images;
+- output: production-ready landing page in HTML/CSS;
+- delivery target: static site deployable on GitHub Pages.
 
-The goal is not to create a large research report. The goal is to produce a short, professional, market-ready media kit that can be sent to a potential direct advertiser.
+The old media-kit-document workflow is no longer the main process in this repo.
 
-## Required final materials
+## Primary deliverable
 
-The work must produce two final materials.
+Each task should produce:
+- a working landing page (`index.html` + `styles.css` + assets);
+- visual fidelity to approved references;
+- evidence from automated visual QA (artifacts/reports).
 
-### 1. Go2.by mini media kit
+A PR is **not ready** without visual-check artifacts.
 
-Audience: external advertiser.
+## Mandatory implementation model
 
-Format:
-- maximum 2–3 A4 pages;
-- compact, visual, commercial;
-- ready to send to the advertiser.
+Use a **hybrid visual-to-web approach**:
+- HTML/CSS for structure, semantics, layout, adaptive behavior, and live text/content.
+- Image assets for logos, branded graphics, complex mockups, and non-trivial decorative visuals.
 
-The media kit must include:
-- brief positioning of Go2.by as an advertising platform;
-- estimated traffic / reach;
-- desktop and mobile presence;
-- advertising formats;
-- package offers;
-- monthly pricing in BYN;
-- analytics and reporting;
-- screenshots / mockups of advertising placements.
-
-The reader must quickly understand:
-- what is being offered;
-- where the ads will be shown;
-- how much it costs;
-- what reach is expected;
-- how performance will be measured.
+Do not use full-page reference images as the website itself.
 
-The media kit must be concise, clear, and free of unnecessary terminology.
+Do not create a generic “inspired by” landing that ignores reference composition.
 
-### 2. Internal rationale
-
-Audience: internal team only.
+## Visual references policy
 
-Format:
-- short;
-- practical;
-- factual.
+`visual-reference/` is:
+- the visual source of truth;
+- the baseline for visual diff.
 
-It must explain:
-- why these ad placements were selected;
-- why these packages were proposed;
-- how pricing was formed;
-- which traffic sources were used;
-- which numbers should be verified via internal analytics;
-- which placements were intentionally rejected.
+References must guide:
+- section order;
+- hierarchy;
+- spacing rhythm;
+- typography scale;
+- CTA emphasis;
+- component proportions.
 
-This internal rationale is not intended for the advertiser.
+Forbidden:
+- embedding `visual-reference/*` full pages as page content/background;
+- shipping references as a fake implementation;
+- replacing reference-driven layout with template-like blocks.
 
-## Research requirements
+## Automated visual QA is required
 
-Before preparing the media kit, research Go2.by as an advertising platform.
+Visual QA is a required stage, not optional.
 
-Review the ticket purchase user journey separately on desktop and mobile:
+Required checks:
+- render actual landing in browser (Playwright);
+- compare against reference baselines (pixel/visual diff, e.g., pixelmatch);
+- save artifacts (screenshots, diff images, reports);
+- use report results to drive next iteration.
 
-- homepage / schedule;
-- film / event list;
-- filters;
-- film / event card;
-- session selection;
-- seat selection;
-- order checkout;
-- final screen with the “Pay” button.
+If diff quality is poor, next iteration must follow the visual report findings.
+Do not “freestyle” edits not backed by measured mismatch.
 
-Important:
-- do not press the “Pay” button;
-- do not proceed to a banking or payment screen;
-- the final research point is the screen where the user is ready to press “Pay”.
+## CI-first execution model
 
-For every screen, evaluate:
-- whether advertising can be placed there;
-- which format is appropriate;
-- how it looks on desktop;
-- how it looks on mobile;
-- how visible the placement is;
-- how commercially valuable it is;
-- whether it should be included in an advertising package.
+Preferred execution loop:
+1. generate/update landing;
+2. run visual-check and visual-autoloop;
+3. inspect artifacts/report;
+4. iterate based on measured diff;
+5. submit PR with artifacts.
 
-Do not propose advertising everywhere. Select only strong, clean, commercially justified placements.
+Target stack:
+- GitHub Actions;
+- OpenAI API;
+- Playwright;
+- pixelmatch;
+- visual report artifacts.
 
-## Advertising approach
+Codex UI is a helper interface, **not** the primary iteration loop.
 
-Do not create a “banner dump”.
+## Environment limitations policy
 
-Avoid:
-- covering the whole site with ads;
-- selling desktop and mobile as fully separate products without a clear reason;
-- weak or noisy placements;
-- formats that harm the ticket purchase flow.
+Local Codex Cloud issues (npm/playwright/browser/runtime quirks) are **not** a valid reason to skip automated validation.
 
-Preferred commercial model:
-- sell advertising campaigns / packages;
-- include both desktop and mobile in the same package;
-- show where each format appears on desktop and mobile;
-- package the offer as one integrated campaign.
-
-Potential package logic:
-- Basic;
-- Standard;
-- Premium / Category Exclusive;
-- optional “Partner of the Month” style package if commercially justified.
-
-## Best-practice benchmark
-
-Use best practices from:
-- ticketing platforms;
-- cinema / entertainment platforms;
-- event platforms;
-- retail media;
-- e-commerce advertising;
-- sports / betting partnerships.
-
-Do not explicitly write in the media kit that these benchmarks were studied.
-
-Use the best practices silently to shape:
-- structure;
-- placement logic;
-- package logic;
-- pricing logic;
-- reporting language;
-- commercial framing.
-
-## Cinema / entertainment context
-
-Go2.by sells cinema tickets. Use this as an advantage, but do not make the whole media kit only about cinema.
-
-Position the audience as people who:
-- choose leisure and entertainment;
-- plan an evening out;
-- are ready to pay online;
-- are already in an entertainment context;
-- may be relevant for a betting / sports betting partner.
+If local checks are unstable:
+- rely on GitHub Actions execution;
+- fix pipeline/config/scripts until CI visual checks pass;
+- attach CI artifacts and use them as acceptance evidence.
 
-Include an optional paid add-on:
+## Definition of ready
 
-### Subscription to newsworthy occasions / contextual placements
-
-Go2.by can notify the partner about relevant films, premieres, or events that may be suitable for contextual advertising.
-
-Examples:
-- Formula 1 / racing film;
-- sports-related film;
-- large sports premiere;
-- male / action audience;
-- thematic weekend.
-
-This must be presented as an additional commercial opportunity, not as a mandatory part of the base package.
-
-## Traffic and reach
-
-Estimate Go2.by traffic through public sources where available:
-- Similarweb;
-- Serpstat / Ahrefs / Semrush if accessible;
-- search visibility;
-- indirect traffic indicators;
-- comparison with similar Belarusian cinema, ticketing, event, and entertainment platforms.
-
-The final materials must include:
-- estimated monthly visits;
-- approximate mobile / desktop split;
-- estimated impressions by ad format;
-- confidence level of the estimate.
-
-If exact data is unavailable, use a realistic negotiation-grade range.
-
-Do not use absurdly broad ranges.
-
-In the external media kit, use careful wording for traffic estimates.
-
-In the internal rationale, clearly state which numbers should be verified through internal Yandex.Metrica / GA / server statistics.
-
-## Pricing
-
-Propose direct-placement prices in BYN per month.
-
-Prices must be:
-- market-aware;
-- not dumping;
-- not inflated;
-- explainable;
-- suitable for direct brand placement;
-- not based mainly on Google Ads / programmatic CPM logic.
-
-Pricing must account for:
-- traffic volume;
-- audience quality;
-- desktop + mobile reach;
-- placement visibility;
-- proximity to purchase;
-- category exclusivity;
-- campaign duration;
-- reporting;
-- implementation complexity.
-
-Prepare 2–3 advertising packages.
-
-For each package specify:
-- what is included;
-- where it is shown;
-- desktop / mobile coverage;
-- estimated impressions;
-- monthly price in BYN.
-
-## Analytics and reporting
-
-The media kit must include a short “Analytics and reporting” block.
-
-Mention that Go2.by can provide:
-- UTM tagging;
-- partner tracking pixel;
-- click tracking;
-- impression tracking;
-- ad impression events;
-- ad click events;
-- CTR;
-- monthly reporting;
-- placement statistics;
-- optimization recommendations.
-
-Keep this block advertiser-friendly. Do not overload it with technical details.
-
-## Betting / sports betting specifics
-
-Keep in mind that the advertiser is betting / sports betting.
-
-Do not make the media kit legally heavy.
-
-If market practice requires disclaimers or age restrictions, add only a short, careful formulation.
-
-Do not create a large legal risk section in the external media kit.
-
-In the internal rationale, briefly note that final legal wording, age restrictions, and category limitations must be approved separately.
-
-## Suggested media kit structure
-
-### Page 1
-
-Include:
-- Go2.by as an advertising platform;
-- audience summary;
-- estimated monthly visits;
-- mobile / desktop split;
-- value for betting / entertainment partner;
-- 1–2 screenshots or mockups of key screens.
-
-### Page 2
-
-Include:
-- advertising format table;
-- placement location;
-- desktop / mobile availability;
-- estimated impressions;
-- monthly price in BYN;
-- what is included;
-- screenshots / mockups of advertising placements.
-
-### Page 3, if needed
-
-Include:
-- package offers;
-- newsworthy occasions / contextual placement subscription;
-- analytics and reporting;
-- campaign launch conditions.
-
-Do not exceed 3 A4 pages.
-
-## Style requirements
-
-The media kit must be:
-- concise;
-- confident;
-- commercial;
-- clear;
-- visually compact;
-- suitable for a direct advertiser.
-
-Avoid:
-- filler text;
-- long explanations;
-- research-style writing;
-- complex advertising terminology;
-- vague promises;
-- overly broad price ranges;
-- excessive legal warnings;
-- generic marketing clichés.
-
-## Visual requirements
-
-Use screenshots / mockups of ad placements.
-
-The document must clearly show:
-- where the advertiser will appear;
-- how the placement looks on desktop;
-- how the placement looks on mobile;
-- which placements are part of each package.
-
-The layout must be clean:
-- no overloaded pages;
-- no tiny unreadable text;
-- no broken spacing;
-- no unclear tables;
-- no “banner dump” impression.
-
-## Quality bar
-
-Before final delivery, review the media kit as a top advertising strategist / media planner preparing a proposal for a large direct advertiser.
-
-Score the result from 1 to 10 using these criteria:
-- clarity of advertising products;
-- commercial persuasiveness;
-- pricing realism;
-- fit with direct advertising market logic;
-- correct desktop and mobile packaging;
-- quality of advertising packages;
-- visual compactness;
-- lack of filler;
-- readiness to send to an advertiser without extra explanation.
-
-Target score: 9/10 or higher.
-
-If the result scores below 9/10, revise it before final delivery.
-
-The final response must include:
-- final self-score out of 10;
-- 3–5 short reasons for the score;
-- what was improved after self-review.
+A task/PR is ready only when all are true:
+- landing is implemented with hybrid HTML/CSS + proper assets;
+- no forbidden use of full-page references as final content;
+- visual diff is measurable and reviewed;
+- visual-check/visual-autoloop artifacts are attached/published;
+- CI workflow provides reproducible proof of quality.
 
 ## Agent behavior rules
 
-Do not change the project purpose without explicit instruction.
+Do:
+- prioritize fidelity to approved references;
+- keep content live in HTML where practical;
+- extract and reuse assets for visual accuracy;
+- iterate by measurable QA output.
 
-Do not turn the task into a long research report.
-
-Do not add unrelated sections or features.
-
-Do not invent exact internal Go2.by statistics. If internal analytics are unavailable, clearly mark estimates as public-source estimates and list what must be verified internally.
-
-Do not expose sensitive negotiation logic in the advertiser-facing media kit.
-
-Keep the external media kit polished and commercial.
-
-Keep the internal rationale factual and short.
+Do not:
+- switch back to document-style media kit process by default;
+- mark work done without visual-check artifacts;
+- treat Codex UI preview as final QA evidence;
+- bypass CI-driven validation for convenience.
