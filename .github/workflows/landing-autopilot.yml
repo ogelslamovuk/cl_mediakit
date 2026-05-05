@@ -1,0 +1,63 @@
+name: landing-autopilot
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_prompt:
+        description: Task prompt for landing generation
+        required: true
+        type: string
+      max_iterations:
+        description: Maximum autopilot iterations (hard-capped at 5)
+        required: false
+        default: '5'
+        type: string
+      threshold_percent:
+        description: Visual diff threshold percent
+        required: false
+        default: '8'
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  autopilot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run landing autopilot
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          TASK_PROMPT: ${{ inputs.task_prompt }}
+          MAX_ITERATIONS: ${{ inputs.max_iterations }}
+          THRESHOLD_PERCENT: ${{ inputs.threshold_percent }}
+        run: node scripts/landing-autopilot.mjs
+
+      - name: Upload autopilot artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: landing-autopilot-artifacts-${{ github.run_id }}
+          path: artifacts/iterations
