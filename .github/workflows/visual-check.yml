@@ -1,0 +1,43 @@
+name: visual-check
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  visual-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Start static server
+        run: |
+          npx http-server . -p 4173 -a 127.0.0.1 >/tmp/http-server.log 2>&1 &
+          echo $! > /tmp/http-server.pid
+
+      - name: Capture screenshots
+        run: npm run visual:capture
+
+      - name: Run visual diff
+        run: npm run visual:diff
+
+      - name: Upload visual artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-check-artifacts
+          path: |
+            artifacts/current
+            artifacts/diff
+            artifacts/visual-report.json

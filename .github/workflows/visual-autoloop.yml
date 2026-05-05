@@ -1,0 +1,154 @@
+name: visual-autoloop
+
+on:
+  workflow_dispatch:
+
+jobs:
+  autoloop:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Start static server
+        run: |
+          npx http-server . -p 4173 -a 127.0.0.1 >/tmp/http-server.log 2>&1 &
+          echo $! > /tmp/http-server.pid
+
+      - name: Run true visual autoloop
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          set -euo pipefail
+          MAX_ITERS=5
+          PASS=false
+
+          if [ -z "${OPENAI_API_KEY:-}" ]; then
+            npm run visual:capture
+            npm run visual:diff || true
+            npm run visual:prompt || true
+            echo "OPENAI_API_KEY is missing. Cannot run auto-fix loop." >&2
+            exit 1
+          fi
+
+          for i in $(seq 1 "$MAX_ITERS"); do
+            echo "Iteration $i/$MAX_ITERS"
+            npm run visual:capture
+            if npm run visual:diff; then
+              PASS=true
+              break
+            fi
+
+            npm run visual:prompt
+
+            node <<'NODE'
+            import fs from 'node:fs/promises';
+
+            const prompt = await fs.readFile('artifacts/current/visual-fix-prompt.md', 'utf8');
+            const indexHtml = await fs.readFile('index.html', 'utf8');
+            const stylesCss = await fs.readFile('styles.css', 'utf8');
+
+            const body = {
+              model: 'gpt-5',
+              input: [
+                {
+                  role: 'system',
+                  content: [
+                    { type: 'input_text', text: 'You are a precise frontend visual-fix assistant. Edit only index.html and styles.css.' },
+                    { type: 'input_text', text: 'Return strict JSON object with keys: index_html, styles_css. No markdown.' }
+                  ]
+                },
+                {
+                  role: 'user',
+                  content: [
+                    { type: 'input_text', text: prompt },
+                    { type: 'input_text', text: `index.html\n\n${indexHtml}` },
+                    { type: 'input_text', text: `styles.css\n\n${stylesCss}` }
+                  ]
+                }
+              ],
+              text: { format: { type: 'json_object' } }
+            };
+
+            const resp = await fetch('https://api.openai.com/v1/responses', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+              },
+              body: JSON.stringify(body)
+            });
+
+            if (!resp.ok) {
+              const t = await resp.text();
+              throw new Error(`OpenAI API failed: ${resp.status} ${t}`);
+            }
+
+            const data = await resp.json();
+            const raw = data.output_text?.trim();
+            if (!raw) throw new Error('No output_text from OpenAI response');
+
+            let parsed;
+            try {
+              parsed = JSON.parse(raw);
+            } catch {
+              throw new Error(`Invalid JSON output: ${raw.slice(0, 500)}`);
+            }
+
+            if (!parsed.index_html || !parsed.styles_css) throw new Error('Missing required keys index_html/styles_css');
+
+            await fs.writeFile('index.html', parsed.index_html);
+            await fs.writeFile('styles.css', parsed.styles_css);
+            NODE
+          done
+
+          mkdir -p artifacts/final
+          cp -f artifacts/visual-report.json artifacts/final/visual-report.json || true
+          cp -f artifacts/current/hero.png artifacts/final/hero.png || true
+          cp -f artifacts/current/formats.png artifacts/final/formats.png || true
+          cp -f artifacts/current/packages.png artifacts/final/packages.png || true
+          cp -f artifacts/current/visual-fix-prompt.md artifacts/final/visual-fix-prompt.md || true
+
+          if [ "$PASS" != true ]; then
+            echo "Autoloop reached max iterations without passing threshold." >&2
+            exit 1
+          fi
+
+      - name: Commit and push autoloop fixes
+        if: always()
+        run: |
+          set -euo pipefail
+          if ! git diff --quiet -- index.html styles.css; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add index.html styles.css
+            git commit -m "chore: visual autoloop fixes"
+            git push
+          else
+            echo "No index.html/styles.css changes to commit"
+          fi
+
+      - name: Upload autoloop artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-autoloop-artifacts
+          path: |
+            artifacts/current
+            artifacts/diff
+            artifacts/final
+            artifacts/visual-report.json
