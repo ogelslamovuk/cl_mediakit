@@ -1,0 +1,19 @@
+{
+  "name": "cl_mediakit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "visual:capture": "node scripts/visual-capture.mjs",
+    "visual:diff": "node scripts/visual-diff.mjs",
+    "visual:prompt": "node scripts/visual-report-to-prompt.mjs",
+    "visual:check": "npm run visual:capture && npm run visual:diff"
+  },
+  "devDependencies": {
+    "pixelmatch": "^6.0.0",
+    "playwright": "^1.54.0",
+    "pngjs": "^7.0.0",
+    "http-server": "^14.1.1",
+    "sharp": "^0.34.2"
+  }
+}
