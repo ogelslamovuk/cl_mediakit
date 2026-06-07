@@ -29,6 +29,9 @@ jobs:
       - name: Capture screenshots
         run: npm run visual:capture
 
+      - name: Generate media kit PDF
+        run: npm run pdf:generate
+
       - name: Run visual diff
         run: npm run visual:diff
 
@@ -41,3 +44,4 @@ jobs:
             artifacts/current
             artifacts/diff
             artifacts/visual-report.json
+            artifacts/go2-mediakit.pdf

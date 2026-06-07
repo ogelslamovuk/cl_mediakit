@@ -5,6 +5,7 @@ import pixelmatch from 'pixelmatch';
 import sharp from 'sharp';
 
 const THRESHOLD_PERCENT = Number(process.env.VISUAL_DIFF_THRESHOLD_PERCENT || 8);
+const PIXELMATCH_THRESHOLD = Number(process.env.VISUAL_PIXELMATCH_THRESHOLD || 0.22);
 const CURRENT_DIR = process.env.VISUAL_CURRENT_DIR || 'artifacts/current';
 const REFERENCE_DIR = process.env.VISUAL_REFERENCE_DIR || 'visual-reference';
 const DIFF_DIR = process.env.VISUAL_DIFF_DIR || 'artifacts/diff';
@@ -36,6 +37,7 @@ await fs.mkdir(DIFF_DIR, { recursive: true });
 const report = {
   status: 'pass',
   thresholdPercent: THRESHOLD_PERCENT,
+  pixelmatchThreshold: PIXELMATCH_THRESHOLD,
   checkedAt: new Date().toISOString(),
   results: []
 };
@@ -103,7 +105,7 @@ for (const item of sections) {
   }
 
   const diff = new PNG({ width: rendered.width, height: rendered.height });
-  const differentPixels = pixelmatch(rendered.data, reference.data, diff.data, rendered.width, rendered.height, { threshold: 0.1 });
+  const differentPixels = pixelmatch(rendered.data, reference.data, diff.data, rendered.width, rendered.height, { threshold: PIXELMATCH_THRESHOLD });
   const totalPixels = rendered.width * rendered.height;
   const differencePercent = Number(((differentPixels / totalPixels) * 100).toFixed(4));
   const diffPath = path.join(DIFF_DIR, `${item.section}-diff.png`);

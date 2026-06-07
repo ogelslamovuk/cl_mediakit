@@ -55,65 +55,65 @@ jobs:
 
             npm run visual:prompt
 
-            node <<'NODE'
-            import fs from 'node:fs/promises';
+            node --input-type=module <<'NODE'
+import fs from 'node:fs/promises';
 
-            const prompt = await fs.readFile('artifacts/current/visual-fix-prompt.md', 'utf8');
-            const indexHtml = await fs.readFile('index.html', 'utf8');
-            const stylesCss = await fs.readFile('styles.css', 'utf8');
+const prompt = await fs.readFile('artifacts/current/visual-fix-prompt.md', 'utf8');
+const indexHtml = await fs.readFile('index.html', 'utf8');
+const stylesCss = await fs.readFile('styles.css', 'utf8');
 
-            const body = {
-              model: 'gpt-5',
-              input: [
-                {
-                  role: 'system',
-                  content: [
-                    { type: 'input_text', text: 'You are a precise frontend visual-fix assistant. Edit only index.html and styles.css.' },
-                    { type: 'input_text', text: 'Return strict JSON object with keys: index_html, styles_css. No markdown.' }
-                  ]
-                },
-                {
-                  role: 'user',
-                  content: [
-                    { type: 'input_text', text: prompt },
-                    { type: 'input_text', text: `index.html\n\n${indexHtml}` },
-                    { type: 'input_text', text: `styles.css\n\n${stylesCss}` }
-                  ]
-                }
-              ],
-              text: { format: { type: 'json_object' } }
-            };
+const body = {
+  model: 'gpt-5',
+  input: [
+    {
+      role: 'system',
+      content: [
+        { type: 'input_text', text: 'You are a precise frontend visual-fix assistant. Edit only index.html and styles.css.' },
+        { type: 'input_text', text: 'Return strict JSON object with keys: index_html, styles_css. No markdown.' }
+      ]
+    },
+    {
+      role: 'user',
+      content: [
+        { type: 'input_text', text: prompt },
+        { type: 'input_text', text: `index.html\n\n${indexHtml}` },
+        { type: 'input_text', text: `styles.css\n\n${stylesCss}` }
+      ]
+    }
+  ],
+  text: { format: { type: 'json_object' } }
+};
 
-            const resp = await fetch('https://api.openai.com/v1/responses', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
-              },
-              body: JSON.stringify(body)
-            });
+const resp = await fetch('https://api.openai.com/v1/responses', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+  },
+  body: JSON.stringify(body)
+});
 
-            if (!resp.ok) {
-              const t = await resp.text();
-              throw new Error(`OpenAI API failed: ${resp.status} ${t}`);
-            }
+if (!resp.ok) {
+  const t = await resp.text();
+  throw new Error(`OpenAI API failed: ${resp.status} ${t}`);
+}
 
-            const data = await resp.json();
-            const raw = data.output_text?.trim();
-            if (!raw) throw new Error('No output_text from OpenAI response');
+const data = await resp.json();
+const raw = data.output_text?.trim();
+if (!raw) throw new Error('No output_text from OpenAI response');
 
-            let parsed;
-            try {
-              parsed = JSON.parse(raw);
-            } catch {
-              throw new Error(`Invalid JSON output: ${raw.slice(0, 500)}`);
-            }
+let parsed;
+try {
+  parsed = JSON.parse(raw);
+} catch {
+  throw new Error(`Invalid JSON output: ${raw.slice(0, 500)}`);
+}
 
-            if (!parsed.index_html || !parsed.styles_css) throw new Error('Missing required keys index_html/styles_css');
+if (!parsed.index_html || !parsed.styles_css) throw new Error('Missing required keys index_html/styles_css');
 
-            await fs.writeFile('index.html', parsed.index_html);
-            await fs.writeFile('styles.css', parsed.styles_css);
-            NODE
+await fs.writeFile('index.html', parsed.index_html);
+await fs.writeFile('styles.css', parsed.styles_css);
+NODE
           done
 
           mkdir -p artifacts/final

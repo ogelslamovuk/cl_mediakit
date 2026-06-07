@@ -10,7 +10,8 @@
     "visual:check": "npm run visual:capture && npm run visual:diff",
     "landing:autopilot": "node scripts/landing-autopilot.mjs",
     "visual:review": "node scripts/visual-review-openai.mjs",
-    "visual:fix": "node scripts/visual-fix-openai.mjs"
+    "visual:fix": "node scripts/visual-fix-openai.mjs",
+    "pdf:generate": "node scripts/generate-pdf.mjs"
   },
   "devDependencies": {
     "pixelmatch": "^6.0.0",
