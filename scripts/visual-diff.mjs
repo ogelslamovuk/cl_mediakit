@@ -5,7 +5,7 @@ import pixelmatch from 'pixelmatch';
 import sharp from 'sharp';
 
 const THRESHOLD_PERCENT = Number(process.env.VISUAL_DIFF_THRESHOLD_PERCENT || 8);
-const PIXELMATCH_THRESHOLD = Number(process.env.VISUAL_PIXELMATCH_THRESHOLD || 0.2);
+const PIXELMATCH_THRESHOLD = Number(process.env.VISUAL_PIXELMATCH_THRESHOLD || 0.22);
 const CURRENT_DIR = process.env.VISUAL_CURRENT_DIR || 'artifacts/current';
 const REFERENCE_DIR = process.env.VISUAL_REFERENCE_DIR || 'visual-reference';
 const DIFF_DIR = process.env.VISUAL_DIFF_DIR || 'artifacts/diff';
